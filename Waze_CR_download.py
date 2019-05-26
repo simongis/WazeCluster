@@ -22,9 +22,9 @@ def main():
     cleanup()
     
     # connect to the porta where the Waze data isl
-    gis = GIS("https://YOURDEVPLAN.maps.arcgis.com/","","")
+    gis = GIS("https://lucasl.maps.arcgis.com/","","")
     
-    url = 'REST/Waze_Alerts_and_Traffic/FeatureServer'
+    url = 'https://services9.arcgis.com/hbNUXYa0vWyWMkdB/arcgis/rest/services/Waze_Alerts_and_Traffic/FeatureServer'
     waze_flc = arcgis.features.FeatureLayerCollection(url, gis)
     
     # Check if sync enabled
@@ -34,9 +34,8 @@ def main():
         print("Sync needs to be enabled on " + waze_flc.url)
         exit
         
-    # ToDo: Check if extract enabled
-    
-    # Get a fGDB  
+    # Cant use Extract capability on a H-FS as it ends up using credits
+	# https://community.esri.com/message/821828-re-extractdata-sample?commentID=821828#comment-821828
     replica = waze_flc.replicas.create(replica_name = 'Waze_Download',
                                        # Need to filter for the previous days worth of data?  Currently collecting 24hr of data
                                        # Could optionally apply a filter here for the type of incident we care about, such as JAMS
@@ -44,6 +43,7 @@ def main():
                                        layers = '0',
                                        data_format = 'filegdb',
                                        out_path = './download')
+    
     print("fGDB downloaded " + replica)
     fgdb = unzip(replica)
     print (fgdb + " is the fGDB name") 
@@ -73,7 +73,7 @@ def main():
     
 def publish_results():
     # Sign in to portal
-    arcpy.SignInToPortal("https://YOURORG.maps.arcgis.com/","","")
+    arcpy.SignInToPortal("https://esriau.maps.arcgis.com/","","")
     
     # Set output file names
     outdir = os.path.join(os.path.dirname(__file__),  'sd')
